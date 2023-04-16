@@ -65,6 +65,8 @@ class PushGame {
 
   bool isMoveObject(int targetPosition) => stageState[targetPosition] == Object.space || stageState[targetPosition] == Object.goal;
 
+  bool get isClear => stageState.indexWhere((obj) => obj == Object.block) == -1;
+
   void draw() {
     for (int y = 0; y < stageHeight; ++y) {
       String line = '';
@@ -79,6 +81,10 @@ class PushGame {
   void update(String input) {
     changeState(input);
     draw();
+
+    if (isClear) {
+      print("Congratulation's! you won.");
+    }
   }
 
   void changeState(String input) {
