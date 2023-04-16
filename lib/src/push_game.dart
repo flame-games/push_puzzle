@@ -7,15 +7,14 @@ class PushGame {
   late int stageWidth;
   late int stageHeight;
   List<String> stageDataList = LineSplitter.split(stageData).toList();
-  late List<Object> stageState;
+  late List<Object> stageState = _stageState;
 
   PushGame() {
     stageWidth = stageDataList.first.length;
     stageHeight = stageDataList.length;
-    stageState = getStageState();
   }
 
-  List<Object> getStageState() {
+  List<Object> get _stageState {
     final List<Object>stageStateList = List<Object>.filled(stageWidth * stageHeight, Object.unknown);
     int x, y;
     x = y = 0;

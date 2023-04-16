@@ -23,13 +23,13 @@ class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
 
     if (!isKeyDown) return super.onKeyEvent(event, keysPressed);
 
-    if (event.logicalKey == LogicalKeyboardKey.keyA) {
+    if (event.logicalKey == LogicalKeyboardKey.keyA || event.logicalKey == LogicalKeyboardKey.arrowLeft) {
       keyDirection = Direction.left;
-    } else if (event.logicalKey == LogicalKeyboardKey.keyD) {
+    } else if (event.logicalKey == LogicalKeyboardKey.keyD || event.logicalKey == LogicalKeyboardKey.arrowRight) {
       keyDirection = Direction.right;
-    } else if (event.logicalKey == LogicalKeyboardKey.keyW) {
+    } else if (event.logicalKey == LogicalKeyboardKey.keyW || event.logicalKey == LogicalKeyboardKey.arrowUp) {
       keyDirection = Direction.up;
-    } else if (event.logicalKey == LogicalKeyboardKey.keyS) {
+    } else if (event.logicalKey == LogicalKeyboardKey.keyS || event.logicalKey == LogicalKeyboardKey.arrowDown) {
       keyDirection = Direction.down;
     }
 
