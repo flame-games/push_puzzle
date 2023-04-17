@@ -7,14 +7,14 @@ class PushGame {
   late int stageWidth;
   late int stageHeight;
   List<String> stageDataList = LineSplitter.split(stageData).toList();
-  late List<Object> stageState = _stageState;
+  late List<Object> stageState = initStageState;
 
   PushGame() {
     stageWidth = stageDataList.first.length;
     stageHeight = stageDataList.length;
   }
 
-  List<Object> get _stageState {
+  List<Object> get initStageState {
     final List<Object>stageStateList = List<Object>.filled(stageWidth * stageHeight, Object.unknown);
     int x, y;
     x = y = 0;
@@ -50,10 +50,10 @@ class PushGame {
     dx = dy = 0;
 
     switch (input) {
-      case 'left': dx = -1; break; // left
-      case 'right': dx = 1; break; // right
-      case 'up': dy = -1; break; // up
-      case 'down': dy = 1; break; // down
+      case 'left': dx = -1; break;
+      case 'right': dx = 1; break;
+      case 'up': dy = -1; break;
+      case 'down': dy = 1; break;
     }
     return {
       'dx': dx,
@@ -67,21 +67,31 @@ class PushGame {
 
   bool get isClear => stageState.indexWhere((obj) => obj == Object.block) == -1;
 
-  void draw() {
+  Map<String, int> get playerVecPos => { 'x': playerIndex % stageWidth, 'y': playerIndex ~/ stageWidth };
+
+  List<String> get splitStageStateList {
+    final List<String>stageStateList = List<String>.filled(stageHeight, '');
+
     for (int y = 0; y < stageHeight; ++y) {
       String line = '';
       for (int x = 0; x < stageWidth; ++x) {
         line = '$line${stageState[y * stageWidth + x].displayName}';
       }
-      print(line);
+      stageStateList[y] = line;
       line = '';
+    }
+    return stageStateList;
+  }
+
+  void draw() {
+    for (var splitStageState in splitStageStateList) {
+      print(splitStageState);
     }
   }
 
   void update(String input) {
     changeState(input);
     draw();
-
     if (isClear) {
       print("Congratulation's! you won.");
     }
@@ -90,12 +100,12 @@ class PushGame {
   void changeState(String input) {
     int? dx = getMoveDirection(input)['dx'];
     int? dy = getMoveDirection(input)['dy'];
-    int x = playerIndex % stageWidth; // modulus operator
-    int y = playerIndex ~/ stageWidth; // integer division operator
+    int? x = playerVecPos['x']; // modulus operator
+    int? y = playerVecPos['y']; // integer division operator
 
     // post move coordinate
-    int tx = x + dx!;
-    int ty = y + dy!;
+    int tx = x! + dx!;
+    int ty = y! + dy!;
 
     // Maximum and minimum coordinate checks
     if (isCoordinate(tx, ty)) return;
