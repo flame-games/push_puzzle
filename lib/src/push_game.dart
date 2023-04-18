@@ -131,7 +131,7 @@ class PushGame {
     }
   }
 
-  void changeGoalObject(int targetPosition, int playerPosition) {
+  void changePlayerObject(int targetPosition, int playerPosition) {
     replacePlayerIn(targetPosition);
     replacePlayerLeave(playerPosition);
   }
@@ -178,7 +178,7 @@ class PushGame {
 
     // Space or goal. People move.
     if (isSpaceOrGoal(tp)) {
-      changeGoalObject(tp, p);
+      changePlayerObject(tp, p);
     } else if (isCrate(tp)) {
       // So two squares away is in range.
       int tx2 = tx + dx;
