@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import '../utility/object_enum.dart';
 import '../utility/stage_data.dart';
+import '../utility/direction.dart';
 
 class PushGame {
   late int stageWidth;
@@ -20,8 +21,8 @@ class PushGame {
     int x, y;
     x = y = 0;
 
-    for (var dataX in stageDataList) {
-      for (var rune in dataX.runes) {
+    for (var stageData in stageDataList) {
+      for (var rune in stageData.runes) {
         final Object t;
         switch (String.fromCharCode(rune)) {
           case '#':
@@ -63,30 +64,6 @@ class PushGame {
   int get playerIndex => stageState
       .indexWhere((obj) => obj == Object.man || obj == Object.manOnGoal);
 
-  Map<String, int> getMoveDirection(String input) {
-    int dx, dy;
-    dx = dy = 0;
-
-    switch (input) {
-      case 'left':
-        dx = -1;
-        break;
-      case 'right':
-        dx = 1;
-        break;
-      case 'up':
-        dy = -1;
-        break;
-      case 'down':
-        dy = 1;
-        break;
-    }
-    return {
-      'dx': dx,
-      'dy': dy,
-    };
-  }
-
   bool isCrate(int targetPosition) =>
       stageState[targetPosition] == Object.block ||
       stageState[targetPosition] == Object.blockOnGoal;
@@ -102,6 +79,44 @@ class PushGame {
 
   Map<String, int> get playerVecPos =>
       {'x': playerIndex % stageWidth, 'y': playerIndex ~/ stageWidth};
+
+  Map<String, int> getVecPos(int index) => {'x': index % stageWidth, 'y': index ~/ stageWidth};
+
+  List<int> get crateIndexList {
+    List<int> indices = [];
+    for (int i = 0; i < stageState.length; i++) {
+      if (stageState[i] == Object.block) {
+        indices.add(i);
+      }
+    }
+    return indices;
+  }
+
+  List<Map<String, int>> get crateVecList {
+    List<Map<String, int>> indices = [];
+    for (var crateIndex in crateIndexList) {
+      indices.add(getVecPos(crateIndex));
+    }
+    return indices;
+  }
+
+  List<int> get crateOnGoalIndexList {
+    List<int> indices = [];
+    for (int i = 0; i < stageState.length; i++) {
+      if (stageState[i] == Object.blockOnGoal) {
+        indices.add(i);
+      }
+    }
+    return indices;
+  }
+
+  List<Map<String, int>> get crateOnGoalVecList {
+    List<Map<String, int>> indices = [];
+    for (var crateOnGoalIndex in crateOnGoalIndexList) {
+      indices.add(getVecPos(crateOnGoalIndex));
+    }
+    return indices;
+  }
 
   List<String> get splitStageStateList {
     final List<String> stageStateList = List<String>.filled(stageHeight, '');
