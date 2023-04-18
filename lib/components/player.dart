@@ -1,11 +1,12 @@
 import 'package:flame/components.dart';
-import '../utility/direction.dart';
 import 'package:flame/sprite.dart';
+
+import '../utility/direction.dart';
 
 class Player extends SpriteAnimationComponent with HasGameRef {
   final double _playerSpeed = 300.0;
   final double _animationSpeed = 0.15;
-  final double _moveCoordinate = 4;
+  final double _moveCoordinate = 8;
   int _moveCount = 0;
 
   late final SpriteAnimation _runDownAnimation;
@@ -18,8 +19,8 @@ class Player extends SpriteAnimationComponent with HasGameRef {
 
   Player()
       : super(
-    size: Vector2.all(64.0),
-  );
+          size: Vector2.all(64.0),
+        );
 
   @override
   Future<void> onLoad() async {

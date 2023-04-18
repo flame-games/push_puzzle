@@ -1,12 +1,12 @@
 import 'package:flame/components.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flame/game.dart';
 import 'package:flame/input.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 
-import 'utility/direction.dart';
-import 'src/push_game.dart';
 import 'components/player.dart';
+import 'src/push_game.dart';
+import 'utility/direction.dart';
 
 class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
   PushGame pushGame = PushGame();
@@ -57,24 +57,30 @@ class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
   }
 
   @override
-  KeyEventResult onKeyEvent(RawKeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
+  KeyEventResult onKeyEvent(
+      RawKeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
     final isKeyDown = event is RawKeyDownEvent;
     Direction keyDirection = Direction.none;
 
-    if (!isKeyDown || _player.moveCount != 0) return super.onKeyEvent(event, keysPressed);
+    if (!isKeyDown || _player.moveCount != 0)
+      return super.onKeyEvent(event, keysPressed);
 
-    if (event.logicalKey == LogicalKeyboardKey.keyA || event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+    if (event.logicalKey == LogicalKeyboardKey.keyA ||
+        event.logicalKey == LogicalKeyboardKey.arrowLeft) {
       keyDirection = Direction.left;
-    } else if (event.logicalKey == LogicalKeyboardKey.keyD || event.logicalKey == LogicalKeyboardKey.arrowRight) {
+    } else if (event.logicalKey == LogicalKeyboardKey.keyD ||
+        event.logicalKey == LogicalKeyboardKey.arrowRight) {
       keyDirection = Direction.right;
-    } else if (event.logicalKey == LogicalKeyboardKey.keyW || event.logicalKey == LogicalKeyboardKey.arrowUp) {
+    } else if (event.logicalKey == LogicalKeyboardKey.keyW ||
+        event.logicalKey == LogicalKeyboardKey.arrowUp) {
       keyDirection = Direction.up;
-    } else if (event.logicalKey == LogicalKeyboardKey.keyS || event.logicalKey == LogicalKeyboardKey.arrowDown) {
+    } else if (event.logicalKey == LogicalKeyboardKey.keyS ||
+        event.logicalKey == LogicalKeyboardKey.arrowDown) {
       keyDirection = Direction.down;
     }
 
-    pushGame.update(keyDirection.name);
-    playerMove(isKeyDown, keyDirection);
+    bool isMove = pushGame.changeState(keyDirection.name);
+    if (isMove) playerMove(isKeyDown, keyDirection);
 
     return super.onKeyEvent(event, keysPressed);
   }
