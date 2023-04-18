@@ -87,10 +87,14 @@ class PushGame {
     };
   }
 
+  bool isCrate(int targetPosition) =>
+      stageState[targetPosition] == Object.block ||
+      stageState[targetPosition] == Object.blockOnGoal;
+
   bool isWorldOut(tx, ty) =>
       tx < 0 || ty < 0 || tx >= stageWidth || ty >= stageHeight;
 
-  bool isMoveObject(int targetPosition) =>
+  bool isSpaceOrGoal(int targetPosition) =>
       stageState[targetPosition] == Object.space ||
       stageState[targetPosition] == Object.goal;
 
@@ -127,6 +131,37 @@ class PushGame {
     }
   }
 
+  void changeGoalObject(int targetPosition, int playerPosition) {
+    replacePlayerIn(targetPosition);
+    replacePlayerLeave(playerPosition);
+  }
+
+  void replacePlayerIn(int targetPosition) {
+    stageState[targetPosition] = (stageState[targetPosition] == Object.goal)
+        ? Object.manOnGoal
+        : Object.man;
+  }
+
+  void replacePlayerLeave(int playerPosition) {
+    stageState[playerPosition] =
+        (stageState[playerPosition] == Object.manOnGoal)
+            ? Object.goal
+            : Object.space;
+  }
+
+  void replaceCrateIn(int targetPosition) {
+    stageState[targetPosition] = (stageState[targetPosition] == Object.goal)
+        ? Object.blockOnGoal
+        : Object.block;
+  }
+
+  void replaceCrateLeave(int targetPosition) {
+    stageState[targetPosition] =
+        (stageState[targetPosition] == Object.blockOnGoal)
+            ? Object.manOnGoal
+            : Object.man;
+  }
+
   bool changeState(String input) {
     int? dx = getMoveDirection(input)['dx'];
     int? dy = getMoveDirection(input)['dy'];
@@ -141,35 +176,24 @@ class PushGame {
     int p = y * stageWidth + x; // PlayerPosition
     int tp = ty * stageWidth + tx; // TargetPosition
 
-    if (isMoveObject(tp)) {
-      stageState[tp] =
-          (stageState[tp] == Object.goal) ? Object.manOnGoal : Object.man;
-      stageState[p] =
-          (stageState[p] == Object.manOnGoal) ? Object.goal : Object.space;
-    }
-    // Blank or goal. People move.
-    else if (stageState[tp] == Object.block ||
-        stageState[tp] == Object.blockOnGoal) {
+    // Space or goal. People move.
+    if (isSpaceOrGoal(tp)) {
+      changeGoalObject(tp, p);
+    } else if (isCrate(tp)) {
       // So two squares away is in range.
       int tx2 = tx + dx;
       int ty2 = ty + dy;
 
-      if (tx2 < 0 || ty2 < 0 || tx2 >= stageWidth || ty2 >= stageHeight) {
-        // Impossible to push.
-        return false;
-      }
+      // Impossible to push.
+      if (isWorldOut(tx2, ty2)) return false;
 
       int tp2 = (ty + dy) * stageWidth + (tx + dx); // two squares away
-      if (stageState[tp2] == Object.space || stageState[tp2] == Object.goal) {
-        // sequential replacement
-        stageState[tp2] = (stageState[tp2] == Object.goal)
-            ? Object.blockOnGoal
-            : Object.block;
-        stageState[tp] = (stageState[tp] == Object.blockOnGoal)
-            ? Object.manOnGoal
-            : Object.man;
-        stageState[p] =
-            (stageState[p] == Object.manOnGoal) ? Object.goal : Object.space;
+
+      // sequential replacement
+      if (isSpaceOrGoal(tp2)) {
+        replaceCrateIn(tp2);
+        replaceCrateLeave(tp);
+        replacePlayerLeave(p);
       }
     } else {
       return false;
