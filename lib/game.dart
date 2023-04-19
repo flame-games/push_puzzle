@@ -12,7 +12,7 @@ import 'utility/config.dart';
 import 'utility/direction.dart';
 
 class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
-  PushGame pushGame = PushGame(stage: 7);
+  PushGame pushGame = PushGame();
   late Player _player;
   final List<Crate> _crateList = [];
   final List<SpriteComponent> _bgComponentList = [];
@@ -59,6 +59,11 @@ class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
     }
     if (pushGame.state.width > 20) {
       camera.followComponent(_player);
+    } else {
+      camera.followVector2(Vector2(pushGame.state.width * oneBlockSize / 2, pushGame.state.height * oneBlockSize / 2));
+      // final component = _bgComponentList.first;
+      // camera.followComponent(component);
+      // camera.setRelativeOffset(Anchor.center);
     }
   }
 
