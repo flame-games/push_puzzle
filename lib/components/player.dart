@@ -1,6 +1,7 @@
 import 'package:flame/components.dart';
 import 'package:flame/sprite.dart';
 
+import '../utility/config.dart';
 import '../utility/direction.dart';
 
 class Player extends SpriteAnimationComponent with HasGameRef {
@@ -18,7 +19,7 @@ class Player extends SpriteAnimationComponent with HasGameRef {
 
   Player()
       : super(
-          size: Vector2.all(64.0),
+          size: Vector2.all(oneBlockSize),
         );
 
   @override
@@ -34,9 +35,9 @@ class Player extends SpriteAnimationComponent with HasGameRef {
   int get moveCount => _moveCount;
 
   @override
-  void update(double delta) {
-    super.update(delta);
-    movePlayer(delta);
+  void update(double dt) {
+    super.update(dt);
+    movePlayer(dt);
   }
 
   void movePlayer(double delta) {
@@ -88,7 +89,7 @@ class Player extends SpriteAnimationComponent with HasGameRef {
   }
 
   void moveFunc(Vector2 vac) {
-    _moveCount -= _moveCoordinate as int;
+    _moveCount -= _moveCoordinate.toInt();
     position.add(vac);
   }
 }

@@ -8,11 +8,11 @@ import 'components/player.dart';
 import 'components/crate.dart';
 
 import 'src/push_game.dart';
+import 'utility/config.dart';
 import 'utility/direction.dart';
 
 class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
   PushGame pushGame = PushGame();
-  final double _blockSize = 64;
   late Player _player;
   final List<Crate> _crateList = [];
   final List<SpriteComponent> _bgComponentList = [];
@@ -41,9 +41,9 @@ class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
       for (var x = 0; x < row.length; x++) {
         final char = row[x];
 
-        if (_spriteMap.containsKey(char)) renderBackGround(_spriteMap[char], x, y);
-        if (char == 'p') initPlayer(x, y);
-        if (char == 'o') initCrate(x, y);
+        if (_spriteMap.containsKey(char)) renderBackGround(_spriteMap[char], x.toDouble(), y.toDouble());
+        if (char == 'p') initPlayer(x.toDouble(), y.toDouble());
+        if (char == 'o') initCrate(x.toDouble(), y.toDouble());
       }
     }
 
@@ -51,28 +51,30 @@ class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
     for(var crate in _crateList) {
       add(crate);
     }
-    // camera.followComponent(_player);
+    if (pushGame.state.width > 20) {
+      camera.followComponent(_player);
+    }
   }
 
-  void renderBackGround(sprite, x, y) {
+  void renderBackGround(sprite, double x, double y) {
     final component = SpriteComponent(
-      size: Vector2.all(_blockSize),
+      size: Vector2.all(oneBlockSize),
       sprite: sprite,
-      position: Vector2(x * _blockSize, y * _blockSize),
+      position: Vector2(x * oneBlockSize, y * oneBlockSize),
     );
     _bgComponentList.add(component);
     add(component);
   }
 
-  void initPlayer(x, y) {
+  void initPlayer(double x, double y) {
     _player = Player();
-    _player.position = Vector2(x * _blockSize, y * _blockSize);
+    _player.position = Vector2(x * oneBlockSize, y * oneBlockSize);
   }
 
-  void initCrate(x, y) {
+  void initCrate(double x, double y) {
     final crate = Crate();
     crate.setPosition(Vector2(x, y));
-    crate.position = Vector2(x * _blockSize, y * _blockSize);
+    crate.position = Vector2(x * oneBlockSize, y * oneBlockSize);
     _crateList.add(crate);
   }
 
@@ -133,7 +135,7 @@ class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
   void playerMove(bool isKeyDown, Direction keyDirection) {
     if (isKeyDown && keyDirection != Direction.none) {
       _player.direction = keyDirection;
-      _player.moveCount = _blockSize as int;
+      _player.moveCount = oneBlockSize.toInt();
     } else if (_player.direction == keyDirection) {
       _player.direction = Direction.none;
     }
