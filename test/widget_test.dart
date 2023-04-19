@@ -1,30 +1,54 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
+import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:push_puzzle/main.dart';
+import 'package:push_puzzle/src/stage_state.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  TestWidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  group('Test stage state of game initialization.', () {
+    late StageState state;
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    setUp(() {
+      state = StageState();
+      // Initial State
+      // ########
+      // # .. p #
+      // # oo   #
+      // #      #
+      // ########
+    });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    group('public Getter', () {
+      test('playerIndex', () {
+        expect(state.playerIndex, 13);
+      });
+      test('isCrateMove', () {
+        expect(state.isCrateMove, false);
+      });
+      test('isClear', () {
+        expect(state.isClear, false);
+      });
+      test('playerVecPos', () {
+        expect(state.playerVecPos, Vector2(5.0, 1.0));
+      });
+      test('crateIndexList', () {
+        expect(state.crateIndexList, [18, 19]);
+      });
+      test('crateVecList', () {
+        expect(state.crateVecList, [Vector2(2.0, 2.0), Vector2(3.0, 2.0)]);
+      });
+      test('crateOnGoalIndexList', () {
+        expect(state.crateOnGoalIndexList, []);
+      });
+      test('crateOnGoalVecList', () {
+        expect(state.crateOnGoalVecList, []);
+      });
+      test('splitStageStateList', () {
+        expect(state.splitStageStateList, ['########', '# .. p #', '# oo   #', '#      #', '########']);
+      });
+    });
   });
 }

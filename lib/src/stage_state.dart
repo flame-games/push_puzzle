@@ -65,9 +65,9 @@ class StageState {
 
   bool get isClear => objectList.indexWhere((obj) => obj == Object.crate) == -1;
 
-  Vector2 get playerVecPos => Vector2((playerIndex % width) as double, (playerIndex ~/ width) as double);
+  Vector2 get playerVecPos => Vector2((playerIndex % width).toDouble(), (playerIndex ~/ width).toDouble());
 
-  Vector2 getVecPos(int index) => Vector2((index % width) as double, (index ~/ width) as double);
+  Vector2 getVecPos(int index) => Vector2((index % width).toDouble(), (index ~/ width).toDouble());
 
   List<int> get crateIndexList {
     List<int> indices = [];
@@ -152,10 +152,10 @@ class StageState {
 
   bool changeState(String input) {
     _isCrateMove = false;
-    int dx = getMoveDirection(input).x as int;
-    int dy = getMoveDirection(input).y as int;
-    int x = playerVecPos.x as int; // modulus operator
-    int y = playerVecPos.y as int; // integer division operator
+    int dx = getMoveDirection(input).x.toInt();
+    int dy = getMoveDirection(input).y.toInt();
+    int x = playerVecPos.x.toInt(); // modulus operator
+    int y = playerVecPos.y.toInt(); // integer division operator
 
     // post move coordinate
     int tx = x + dx;
