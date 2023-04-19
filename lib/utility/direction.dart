@@ -1,7 +1,9 @@
+import 'package:flame/components.dart';
+
 enum Direction { up, down, left, right, none }
 
-Map<String, int> getMoveDirection(String input) {
-  int dx, dy;
+Vector2 getMoveDirection(String input) {
+  double dx, dy;
   dx = dy = 0;
 
   switch (input) {
@@ -18,8 +20,5 @@ Map<String, int> getMoveDirection(String input) {
       dy = 1;
       break;
   }
-  return {
-    'dx': dx,
-    'dy': dy,
-  };
+  return Vector2(dx, dy);
 }

@@ -7,10 +7,10 @@ import '../utility/stage_master_data.dart';
 import '../utility/direction.dart';
 
 class StageState {
-  late int stageWidth;
-  late int stageHeight;
-  late List<String> stageDataList;
-  late List<Object> stageState = initStageState;
+  late int width;
+  late int height;
+  late List<String> dataList;
+  late List<Object> objectList = initStageState;
 
   bool _isCrateMove = false;
   late Vector2 crateMoveBeforeVec;
@@ -21,23 +21,23 @@ class StageState {
   }
 
   void changeStage(int stage) {
-    stageDataList = LineSplitter.split(stageMasterDataList[stage - 1]).toList();
-    stageWidth = stageDataList.first.length;
-    stageHeight = stageDataList.length;
-    stageState = initStageState;
+    dataList = LineSplitter.split(stageMasterDataList[stage - 1]).toList();
+    width = dataList.first.length;
+    height = dataList.length;
+    objectList = initStageState;
   }
 
   List<Object> get initStageState {
     final List<Object> stageStateList =
-        List<Object>.filled(stageWidth * stageHeight, Object.unknown);
+        List<Object>.filled(width * height, Object.unknown);
     int x, y;
     x = y = 0;
 
-    for (var stageData in stageDataList) {
+    for (var stageData in dataList) {
       for (var rune in stageData.runes) {
         final Object t = Object.fromValue(String.fromCharCode(rune));
         if (t != Object.unknown) {
-          stageStateList[y * stageWidth + x] = t;
+          stageStateList[y * width + x] = t;
           ++x;
         }
       }
@@ -47,33 +47,32 @@ class StageState {
     return stageStateList;
   }
 
-  int get playerIndex => stageState
+  int get playerIndex => objectList
       .indexWhere((obj) => obj == Object.man || obj == Object.manOnGoal);
 
   bool get isCrateMove => _isCrateMove;
 
   bool isCrate(int targetPosition) =>
-      stageState[targetPosition] == Object.crate ||
-      stageState[targetPosition] == Object.crateOnGoal;
+      objectList[targetPosition] == Object.crate ||
+      objectList[targetPosition] == Object.crateOnGoal;
 
   bool isWorldOut(tx, ty) =>
-      tx < 0 || ty < 0 || tx >= stageWidth || ty >= stageHeight;
+      tx < 0 || ty < 0 || tx >= width || ty >= height;
 
   bool isSpaceOrGoal(int targetPosition) =>
-      stageState[targetPosition] == Object.space ||
-      stageState[targetPosition] == Object.goal;
+      objectList[targetPosition] == Object.space ||
+      objectList[targetPosition] == Object.goal;
 
-  bool get isClear => stageState.indexWhere((obj) => obj == Object.crate) == -1;
+  bool get isClear => objectList.indexWhere((obj) => obj == Object.crate) == -1;
 
-  Map<String, int> get playerVecPos =>
-      {'x': playerIndex % stageWidth, 'y': playerIndex ~/ stageWidth};
+  Vector2 get playerVecPos => Vector2((playerIndex % width) as double, (playerIndex ~/ width) as double);
 
-  Vector2 getVecPos(int index) => Vector2((index % stageWidth) as double, (index ~/ stageWidth) as double);
+  Vector2 getVecPos(int index) => Vector2((index % width) as double, (index ~/ width) as double);
 
   List<int> get crateIndexList {
     List<int> indices = [];
-    for (int i = 0; i < stageState.length; i++) {
-      if (stageState[i] == Object.crate) {
+    for (int i = 0; i < objectList.length; i++) {
+      if (objectList[i] == Object.crate) {
         indices.add(i);
       }
     }
@@ -90,8 +89,8 @@ class StageState {
 
   List<int> get crateOnGoalIndexList {
     List<int> indices = [];
-    for (int i = 0; i < stageState.length; i++) {
-      if (stageState[i] == Object.crateOnGoal) {
+    for (int i = 0; i < objectList.length; i++) {
+      if (objectList[i] == Object.crateOnGoal) {
         indices.add(i);
       }
     }
@@ -107,12 +106,12 @@ class StageState {
   }
 
   List<String> get splitStageStateList {
-    final List<String> stageStateList = List<String>.filled(stageHeight, '');
+    final List<String> stageStateList = List<String>.filled(height, '');
 
-    for (int y = 0; y < stageHeight; ++y) {
+    for (int y = 0; y < height; ++y) {
       String line = '';
-      for (int x = 0; x < stageWidth; ++x) {
-        line = '$line${stageState[y * stageWidth + x].displayName}';
+      for (int x = 0; x < width; ++x) {
+        line = '$line${objectList[y * width + x].displayName}';
       }
       stageStateList[y] = line;
       line = '';
@@ -126,45 +125,47 @@ class StageState {
   }
 
   void replacePlayerIn(int targetPosition) {
-    stageState[targetPosition] = (stageState[targetPosition] == Object.goal)
+    objectList[targetPosition] = (objectList[targetPosition] == Object.goal)
         ? Object.manOnGoal
         : Object.man;
   }
 
   void replacePlayerLeave(int playerPosition) {
-    stageState[playerPosition] =
-        (stageState[playerPosition] == Object.manOnGoal)
+    objectList[playerPosition] =
+        (objectList[playerPosition] == Object.manOnGoal)
             ? Object.goal
             : Object.space;
   }
 
   void replaceCrateIn(int targetPosition) {
-    stageState[targetPosition] = (stageState[targetPosition] == Object.goal)
+    objectList[targetPosition] = (objectList[targetPosition] == Object.goal)
         ? Object.crateOnGoal
         : Object.crate;
   }
 
   void replaceCrateLeave(int targetPosition) {
-    stageState[targetPosition] =
-        (stageState[targetPosition] == Object.crateOnGoal)
+    objectList[targetPosition] =
+        (objectList[targetPosition] == Object.crateOnGoal)
             ? Object.manOnGoal
             : Object.man;
   }
 
   bool changeState(String input) {
     _isCrateMove = false;
-    int? dx = getMoveDirection(input)['dx'];
-    int? dy = getMoveDirection(input)['dy'];
-    int? x = playerVecPos['x']; // modulus operator
-    int? y = playerVecPos['y']; // integer division operator
+    int dx = getMoveDirection(input).x as int;
+    int dy = getMoveDirection(input).y as int;
+    int x = playerVecPos.x as int; // modulus operator
+    int y = playerVecPos.y as int; // integer division operator
+
     // post move coordinate
-    int tx = x! + dx!;
-    int ty = y! + dy!;
+    int tx = x + dx;
+    int ty = y + dy;
+
     // Maximum and minimum coordinate checks
     if (isWorldOut(tx, ty)) return false;
 
-    int p = y * stageWidth + x; // PlayerPosition
-    int tp = ty * stageWidth + tx; // TargetPosition
+    int p = y * width + x; // PlayerPosition
+    int tp = ty * width + tx; // TargetPosition
 
     // Space or goal. People move.
     if (isSpaceOrGoal(tp)) {
@@ -177,7 +178,7 @@ class StageState {
       // Impossible to push.
       if (isWorldOut(tx2, ty2)) return false;
 
-      int tp2 = (ty + dy) * stageWidth + (tx + dx); // two squares away
+      int tp2 = (ty + dy) * width + (tx + dx); // two squares away
 
       // sequential replacement
       if (isSpaceOrGoal(tp2)) {
