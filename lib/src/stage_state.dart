@@ -15,6 +15,7 @@ class StageState {
   bool _isCrateMove = false;
   late Vector2 crateMoveBeforeVec;
   late Vector2 crateMoveAfterVec;
+  late List<Vector2> goalVecList;
 
   StageState({int stage = 1}) {
     changeStage(stage);
@@ -25,6 +26,7 @@ class StageState {
     width = dataList.first.length;
     height = dataList.length;
     objectList = initStageState;
+    goalVecList = _goalVecList;
   }
 
   List<Object> get initStageState {
@@ -101,6 +103,24 @@ class StageState {
     List<Vector2> indices = [];
     for (var crateOnGoalIndex in crateOnGoalIndexList) {
       indices.add(getVecPos(crateOnGoalIndex));
+    }
+    return indices;
+  }
+
+  List<int> get _goalIndexList {
+    List<int> indices = [];
+    for (int i = 0; i < objectList.length; i++) {
+      if (objectList[i] == Object.goal) {
+        indices.add(i);
+      }
+    }
+    return indices;
+  }
+
+  List<Vector2> get _goalVecList {
+    List<Vector2> indices = [];
+    for (var goalIndex in _goalIndexList) {
+      indices.add(getVecPos(goalIndex));
     }
     return indices;
   }

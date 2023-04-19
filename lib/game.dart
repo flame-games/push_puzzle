@@ -117,18 +117,16 @@ class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
       playerMove(isKeyDown, keyDirection);
 
       if (pushGame.state.isCrateMove) {
-        final targetCreate = _crateList.firstWhere((crate) => crate.coordinate == pushGame.state.crateMoveBeforeVec);
-        targetCreate.move(pushGame.state.crateMoveAfterVec);
+        final targetCrate = _crateList.firstWhere((crate) => crate.coordinate == pushGame.state.crateMoveBeforeVec);
+        targetCrate.move(pushGame.state.crateMoveAfterVec);
+        targetCrate.goalCheck(pushGame.state.goalVecList);
       }
       if (pushGame.state.isClear) {
-        print("Congratulation's! you won.");
         pushGame.nextStage();
         allReset();
         draw();
       }
     }
-    // pushGame.draw();
-
     return super.onKeyEvent(event, keysPressed);
   }
 
