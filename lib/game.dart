@@ -16,7 +16,9 @@ class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
   late Player _player;
   final List<Crate> _crateList = [];
   final List<SpriteComponent> _bgComponentList = [];
+  final List<SpriteComponent> _floorSpriteList = [];
   late Map<String, Sprite> _spriteMap;
+  late Sprite _floorSprite;
 
   @override
   Color backgroundColor() => const Color.fromRGBO(89, 106, 108, 1.0);
@@ -27,6 +29,7 @@ class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
 
     final blockSprite = await Sprite.load('block.png');
     final goalSprite = await Sprite.load('goal.png');
+    _floorSprite = await Sprite.load('floor.png');
     _spriteMap = {
       '#': blockSprite,
       '.': goalSprite,
@@ -38,9 +41,12 @@ class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
   Future<void> draw() async {
     for (var y = 0; y < pushGame.state.splitStageStateList.length; y++) {
       final row = pushGame.state.splitStageStateList[y];
+      final firstWallIndex = row.indexOf('#');
+      final lastWallIndex = row.lastIndexOf('#');
+
       for (var x = 0; x < row.length; x++) {
         final char = row[x];
-
+        if (x > firstWallIndex && x < lastWallIndex) renderFloor(x.toDouble(), y.toDouble());
         if (_spriteMap.containsKey(char)) renderBackGround(_spriteMap[char], x.toDouble(), y.toDouble());
         if (char == 'p') initPlayer(x.toDouble(), y.toDouble());
         if (char == 'o') initCrate(x.toDouble(), y.toDouble());
@@ -66,6 +72,16 @@ class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
     add(component);
   }
 
+  void renderFloor(double x, double y) {
+    final component = SpriteComponent(
+      size: Vector2.all(oneBlockSize),
+      sprite: _floorSprite,
+      position: Vector2(x * oneBlockSize, y * oneBlockSize),
+    );
+    _floorSpriteList.add(component);
+    add(component);
+  }
+
   void initPlayer(double x, double y) {
     _player = Player();
     _player.position = Vector2(x * oneBlockSize, y * oneBlockSize);
@@ -86,8 +102,12 @@ class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
     for (var bg in _bgComponentList) {
       remove(bg);
     }
+    for (var floorSprite in _floorSpriteList) {
+      remove(floorSprite);
+    }
     _crateList.clear();
     _bgComponentList.clear();
+    _floorSpriteList.clear();
   }
 
   @override

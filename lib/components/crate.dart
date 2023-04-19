@@ -11,6 +11,7 @@ class Crate extends SpriteAnimationComponent with HasGameRef {
   bool isGoal = false;
 
   late final SpriteAnimation _noAnimation;
+  late final SpriteAnimation _goalAnimation;
   late final OpacityEffect _goalEffect;
 
   Crate()
@@ -33,6 +34,8 @@ class Crate extends SpriteAnimationComponent with HasGameRef {
 
     _noAnimation =
         spriteSheet.createAnimation(row: 0, stepTime: 1, to: 1);
+    _goalAnimation =
+        spriteSheet.createAnimation(row: 0, stepTime: 0.4, to: 2);
   }
 
   void setPosition(Vector2 vec) {
@@ -51,11 +54,16 @@ class Crate extends SpriteAnimationComponent with HasGameRef {
   void goalCheck(List<Vector2> vacList) {
     isGoal = vacList.any((vec) => coordinate == vec);
 
-    if (isGoal && !_goalEffect.isMounted) {
-      add(_goalEffect);
-    } else if(!isGoal && _goalEffect.isMounted) {
-      _goalEffect.apply(0);
-      _goalEffect.removeFromParent();
+    // if (isGoal && !_goalEffect.isMounted) {
+    //   add(_goalEffect);
+    // } else if(!isGoal && _goalEffect.isMounted) {
+    //   _goalEffect.apply(0);
+    //   _goalEffect.removeFromParent();
+    // }
+    if (isGoal) {
+      animation = _goalAnimation;
+    } else {
+      animation = _noAnimation;
     }
   }
 }
