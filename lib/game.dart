@@ -12,7 +12,7 @@ import 'utility/config.dart';
 import 'utility/direction.dart';
 
 class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
-  PushGame pushGame = PushGame();
+  PushGame pushGame = PushGame(stage: 7);
   late Player _player;
   final List<Crate> _crateList = [];
   final List<SpriteComponent> _bgComponentList = [];
