@@ -1,3 +1,5 @@
+import 'package:flame/components.dart';
+
 import 'stage_state.dart';
 
 class PushGame {

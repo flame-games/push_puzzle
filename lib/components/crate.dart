@@ -3,8 +3,7 @@ import 'package:flame/sprite.dart';
 
 class Crate extends SpriteAnimationComponent with HasGameRef {
   int _moveCount = 0;
-  int xPosition = 0;
-  int yPosition = 0;
+  late Vector2 coordinate;
 
   late final SpriteAnimation _noAnimation;
 
@@ -34,8 +33,17 @@ class Crate extends SpriteAnimationComponent with HasGameRef {
         spriteSheet.createAnimation(row: 0, stepTime: 1, to: 1);
   }
 
-  setPosition(int x, int y) {
-    xPosition = x;
-    yPosition = y;
+  void setPosition(Vector2 vec) {
+    coordinate = vec;
+  }
+
+  move(Vector2 vec) {
+    moveFunc((vec - coordinate) * 64.0);
+    setPosition(vec);
+  }
+
+  void moveFunc(Vector2 vac) {
+    // _moveCount -= _moveCoordinate as int;
+    position.add(vac);
   }
 }

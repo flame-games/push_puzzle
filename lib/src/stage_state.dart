@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flame/components.dart';
+
 import '../utility/object_enum.dart';
 import '../utility/stage_data.dart';
 import '../utility/direction.dart';
@@ -9,6 +11,10 @@ class StageState {
   late int stageHeight;
   List<String> stageDataList = LineSplitter.split(stageData).toList();
   late List<Object> stageState = initStageState;
+
+  bool _isCrateMove = false;
+  late Vector2 crateMoveBeforeVec;
+  late Vector2 crateMoveAfterVec;
 
   StageState() {
     stageWidth = stageDataList.first.length;
@@ -64,6 +70,8 @@ class StageState {
   int get playerIndex => stageState
       .indexWhere((obj) => obj == Object.man || obj == Object.manOnGoal);
 
+  bool get isCrateMove => _isCrateMove;
+
   bool isCrate(int targetPosition) =>
       stageState[targetPosition] == Object.block ||
       stageState[targetPosition] == Object.blockOnGoal;
@@ -80,7 +88,7 @@ class StageState {
   Map<String, int> get playerVecPos =>
       {'x': playerIndex % stageWidth, 'y': playerIndex ~/ stageWidth};
 
-  Map<String, int> getVecPos(int index) => {'x': index % stageWidth, 'y': index ~/ stageWidth};
+  Vector2 getVecPos(int index) => Vector2((index % stageWidth) as double, (index ~/ stageWidth) as double);
 
   List<int> get crateIndexList {
     List<int> indices = [];
@@ -92,8 +100,8 @@ class StageState {
     return indices;
   }
 
-  List<Map<String, int>> get crateVecList {
-    List<Map<String, int>> indices = [];
+  List<Vector2> get crateVecList {
+    List<Vector2> indices = [];
     for (var crateIndex in crateIndexList) {
       indices.add(getVecPos(crateIndex));
     }
@@ -110,8 +118,8 @@ class StageState {
     return indices;
   }
 
-  List<Map<String, int>> get crateOnGoalVecList {
-    List<Map<String, int>> indices = [];
+  List<Vector2> get crateOnGoalVecList {
+    List<Vector2> indices = [];
     for (var crateOnGoalIndex in crateOnGoalIndexList) {
       indices.add(getVecPos(crateOnGoalIndex));
     }
@@ -164,6 +172,7 @@ class StageState {
   }
 
   bool changeState(String input) {
+    _isCrateMove = false;
     int? dx = getMoveDirection(input)['dx'];
     int? dy = getMoveDirection(input)['dy'];
     int? x = playerVecPos['x']; // modulus operator
@@ -192,9 +201,15 @@ class StageState {
 
       // sequential replacement
       if (isSpaceOrGoal(tp2)) {
+        _isCrateMove = true;
+        crateMoveBeforeVec = getVecPos(tp);
+        crateMoveAfterVec = getVecPos(tp2);
+
         replaceCrateIn(tp2);
         replaceCrateLeave(tp);
         replacePlayerLeave(p);
+      } else {
+        return false;
       }
     } else {
       return false;
