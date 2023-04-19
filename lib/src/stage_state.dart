@@ -3,22 +3,28 @@ import 'dart:convert';
 import 'package:flame/components.dart';
 
 import '../utility/object_enum.dart';
-import '../utility/stage_data.dart';
+import '../utility/stage_master_data.dart';
 import '../utility/direction.dart';
 
 class StageState {
   late int stageWidth;
   late int stageHeight;
-  List<String> stageDataList = LineSplitter.split(stageData).toList();
+  late List<String> stageDataList;
   late List<Object> stageState = initStageState;
 
   bool _isCrateMove = false;
   late Vector2 crateMoveBeforeVec;
   late Vector2 crateMoveAfterVec;
 
-  StageState() {
+  StageState({int stage = 1}) {
+    changeStage(stage);
+  }
+
+  void changeStage(int stage) {
+    stageDataList = LineSplitter.split(stageMasterDataList[stage - 1]).toList();
     stageWidth = stageDataList.first.length;
     stageHeight = stageDataList.length;
+    stageState = initStageState;
   }
 
   List<Object> get initStageState {
@@ -29,33 +35,7 @@ class StageState {
 
     for (var stageData in stageDataList) {
       for (var rune in stageData.runes) {
-        final Object t;
-        switch (String.fromCharCode(rune)) {
-          case '#':
-            t = Object.wall;
-            break;
-          case ' ':
-            t = Object.space;
-            break;
-          case 'o':
-            t = Object.block;
-            break;
-          case 'O':
-            t = Object.blockOnGoal;
-            break;
-          case '.':
-            t = Object.goal;
-            break;
-          case 'p':
-            t = Object.man;
-            break;
-          case 'P':
-            t = Object.manOnGoal;
-            break;
-          default:
-            t = Object.unknown;
-            break;
-        }
+        final Object t = Object.fromValue(String.fromCharCode(rune));
         if (t != Object.unknown) {
           stageStateList[y * stageWidth + x] = t;
           ++x;
@@ -73,8 +53,8 @@ class StageState {
   bool get isCrateMove => _isCrateMove;
 
   bool isCrate(int targetPosition) =>
-      stageState[targetPosition] == Object.block ||
-      stageState[targetPosition] == Object.blockOnGoal;
+      stageState[targetPosition] == Object.crate ||
+      stageState[targetPosition] == Object.crateOnGoal;
 
   bool isWorldOut(tx, ty) =>
       tx < 0 || ty < 0 || tx >= stageWidth || ty >= stageHeight;
@@ -83,7 +63,7 @@ class StageState {
       stageState[targetPosition] == Object.space ||
       stageState[targetPosition] == Object.goal;
 
-  bool get isClear => stageState.indexWhere((obj) => obj == Object.block) == -1;
+  bool get isClear => stageState.indexWhere((obj) => obj == Object.crate) == -1;
 
   Map<String, int> get playerVecPos =>
       {'x': playerIndex % stageWidth, 'y': playerIndex ~/ stageWidth};
@@ -93,7 +73,7 @@ class StageState {
   List<int> get crateIndexList {
     List<int> indices = [];
     for (int i = 0; i < stageState.length; i++) {
-      if (stageState[i] == Object.block) {
+      if (stageState[i] == Object.crate) {
         indices.add(i);
       }
     }
@@ -111,7 +91,7 @@ class StageState {
   List<int> get crateOnGoalIndexList {
     List<int> indices = [];
     for (int i = 0; i < stageState.length; i++) {
-      if (stageState[i] == Object.blockOnGoal) {
+      if (stageState[i] == Object.crateOnGoal) {
         indices.add(i);
       }
     }
@@ -160,13 +140,13 @@ class StageState {
 
   void replaceCrateIn(int targetPosition) {
     stageState[targetPosition] = (stageState[targetPosition] == Object.goal)
-        ? Object.blockOnGoal
-        : Object.block;
+        ? Object.crateOnGoal
+        : Object.crate;
   }
 
   void replaceCrateLeave(int targetPosition) {
     stageState[targetPosition] =
-        (stageState[targetPosition] == Object.blockOnGoal)
+        (stageState[targetPosition] == Object.crateOnGoal)
             ? Object.manOnGoal
             : Object.man;
   }

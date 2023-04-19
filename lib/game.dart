@@ -12,9 +12,10 @@ import 'utility/direction.dart';
 
 class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
   PushGame pushGame = PushGame();
-  final Player _player = Player();
   final double _blockSize = 64;
+  late Player _player;
   final List<Crate> _crateList = [];
+  final List<SpriteComponent> _bgComponentList = [];
   late Map<String, Sprite> _spriteMap;
 
   @override
@@ -35,14 +36,14 @@ class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
   }
 
   Future<void> draw() async {
-    for (var i = 0; i < pushGame.state.splitStageStateList.length; i++) {
-      final row = pushGame.state.splitStageStateList[i];
-      for (var j = 0; j < row.length; j++) {
-        final char = row[j];
+    for (var y = 0; y < pushGame.state.splitStageStateList.length; y++) {
+      final row = pushGame.state.splitStageStateList[y];
+      for (var x = 0; x < row.length; x++) {
+        final char = row[x];
 
-        if (_spriteMap.containsKey(char)) renderBackGround(_spriteMap[char], j, i);
-        if (char == 'p') initPlayer(j, i);
-        if (char == 'o') initCrate(j, i);
+        if (_spriteMap.containsKey(char)) renderBackGround(_spriteMap[char], x, y);
+        if (char == 'p') initPlayer(x, y);
+        if (char == 'o') initCrate(x, y);
       }
     }
 
@@ -50,6 +51,7 @@ class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
     for(var crate in _crateList) {
       add(crate);
     }
+    // camera.followComponent(_player);
   }
 
   void renderBackGround(sprite, x, y) {
@@ -58,10 +60,12 @@ class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
       sprite: sprite,
       position: Vector2(x * _blockSize, y * _blockSize),
     );
+    _bgComponentList.add(component);
     add(component);
   }
 
   void initPlayer(x, y) {
+    _player = Player();
     _player.position = Vector2(x * _blockSize, y * _blockSize);
   }
 
@@ -72,14 +76,27 @@ class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
     _crateList.add(crate);
   }
 
+  void allReset() {
+    remove(_player);
+    for (var crate in _crateList) {
+      remove(crate);
+    }
+    for (var bg in _bgComponentList) {
+      remove(bg);
+    }
+    _crateList.clear();
+    _bgComponentList.clear();
+  }
+
   @override
   KeyEventResult onKeyEvent(
       RawKeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
     final isKeyDown = event is RawKeyDownEvent;
     Direction keyDirection = Direction.none;
 
-    if (!isKeyDown || _player.moveCount != 0)
+    if (!isKeyDown || _player.moveCount != 0) {
       return super.onKeyEvent(event, keysPressed);
+    }
 
     if (event.logicalKey == LogicalKeyboardKey.keyA ||
         event.logicalKey == LogicalKeyboardKey.arrowLeft) {
@@ -105,6 +122,9 @@ class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
       }
       if (pushGame.state.isClear) {
         print("Congratulation's! you won.");
+        pushGame.nextStage();
+        allReset();
+        draw();
       }
     }
     // pushGame.draw();

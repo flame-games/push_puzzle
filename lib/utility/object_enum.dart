@@ -2,8 +2,8 @@ enum Object {
   space(' '),
   wall('#'),
   goal('.'),
-  block('o'),
-  blockOnGoal('O'),
+  crate('o'),
+  crateOnGoal('O'),
   man('p'),
   manOnGoal('P'),
   unknown('');
@@ -11,4 +11,6 @@ enum Object {
   const Object(this.displayName);
 
   final String displayName;
+
+  static Object fromValue(String value) => Object.values.firstWhere((o) => o.displayName == value);
 }
