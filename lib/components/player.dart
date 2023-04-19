@@ -4,7 +4,6 @@ import 'package:flame/sprite.dart';
 import '../utility/direction.dart';
 
 class Player extends SpriteAnimationComponent with HasGameRef {
-  final double _playerSpeed = 300.0;
   final double _animationSpeed = 0.15;
   final double _moveCoordinate = 8;
   int _moveCount = 0;

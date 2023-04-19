@@ -5,6 +5,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 
 import 'components/player.dart';
+import 'components/crate.dart';
+
 import 'src/push_game.dart';
 import 'utility/direction.dart';
 
@@ -12,6 +14,7 @@ class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
   PushGame pushGame = PushGame();
   final Player _player = Player();
   final double _blockSize = 64;
+  final List<Crate> _crateList = [];
 
   @override
   Color backgroundColor() => const Color.fromRGBO(89, 106, 108, 1.0);
@@ -19,24 +22,22 @@ class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
   @override
   Future<void> onLoad() async {
     super.onLoad();
-
     await draw();
-    pushGame.draw();
   }
 
   Future<void> draw() async {
     final blockSprite = await Sprite.load('block.png');
-    final crateSprite = await Sprite.load('crate.png');
+    // final crateSprite = await Sprite.load('crate.png');
     final goalSprite = await Sprite.load('goal.png');
 
     final spriteMap = {
       '#': blockSprite,
-      'o': crateSprite,
+      // 'o': crateSprite,
       '.': goalSprite,
     };
 
-    for (var i = 0; i < pushGame.splitStageStateList.length; i++) {
-      final row = pushGame.splitStageStateList[i];
+    for (var i = 0; i < pushGame.state.splitStageStateList.length; i++) {
+      final row = pushGame.state.splitStageStateList[i];
       for (var j = 0; j < row.length; j++) {
         final char = row[j];
         if (spriteMap.containsKey(char)) {
@@ -51,9 +52,18 @@ class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
         if (char == 'p') {
           _player.position = Vector2(j * _blockSize, i * _blockSize);
         }
+        if (char == 'o') {
+          final crate = Crate();
+          crate.setPosition(j, i);
+          crate.position = Vector2(j * _blockSize, i * _blockSize);
+          _crateList.add(crate);
+        }
       }
     }
     add(_player);
+    for(var crate in _crateList) {
+      add(crate);
+    }
   }
 
   @override
@@ -81,6 +91,7 @@ class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
 
     bool isMove = pushGame.changeState(keyDirection.name);
     if (isMove) playerMove(isKeyDown, keyDirection);
+    pushGame.draw();
 
     return super.onKeyEvent(event, keysPressed);
   }
