@@ -57,6 +57,7 @@ class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
     for(var crate in _crateList) {
       add(crate);
     }
+
     if (pushGame.state.width > 20) {
       camera.followComponent(_player);
     } else {
@@ -125,6 +126,22 @@ class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
       return super.onKeyEvent(event, keysPressed);
     }
 
+    keyDirection = getKeyDirection(event);
+    bool isMove = pushGame.changeState(keyDirection.name);
+    if (isMove) {
+      playerMove(isKeyDown, keyDirection);
+      if (pushGame.state.isCrateMove) {
+        createMove();
+      }
+      if (pushGame.state.isClear) {
+        drawNextStage();
+      }
+    }
+    return super.onKeyEvent(event, keysPressed);
+  }
+
+  Direction getKeyDirection(RawKeyEvent event) {
+    Direction keyDirection = Direction.none;
     if (event.logicalKey == LogicalKeyboardKey.keyA ||
         event.logicalKey == LogicalKeyboardKey.arrowLeft) {
       keyDirection = Direction.left;
@@ -138,23 +155,7 @@ class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
         event.logicalKey == LogicalKeyboardKey.arrowDown) {
       keyDirection = Direction.down;
     }
-
-    bool isMove = pushGame.changeState(keyDirection.name);
-    if (isMove) {
-      playerMove(isKeyDown, keyDirection);
-
-      if (pushGame.state.isCrateMove) {
-        final targetCrate = _crateList.firstWhere((crate) => crate.coordinate == pushGame.state.crateMoveBeforeVec);
-        targetCrate.move(pushGame.state.crateMoveAfterVec);
-        targetCrate.goalCheck(pushGame.state.goalVecList);
-      }
-      if (pushGame.state.isClear) {
-        pushGame.nextStage();
-        allReset();
-        draw();
-      }
-    }
-    return super.onKeyEvent(event, keysPressed);
+    return keyDirection;
   }
 
   void playerMove(bool isKeyDown, Direction keyDirection) {
@@ -164,5 +165,17 @@ class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
     } else if (_player.direction == keyDirection) {
       _player.direction = Direction.none;
     }
+  }
+
+  void createMove() {
+    final targetCrate = _crateList.firstWhere((crate) => crate.coordinate == pushGame.state.crateMoveBeforeVec);
+    targetCrate.move(pushGame.state.crateMoveAfterVec);
+    targetCrate.goalCheck(pushGame.state.goalVecList);
+  }
+
+  void drawNextStage() {
+    pushGame.nextStage();
+    allReset();
+    draw();
   }
 }
