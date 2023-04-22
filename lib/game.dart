@@ -58,7 +58,7 @@ class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
       add(crate);
     }
 
-    if (pushGame.state.width > 20) {
+    if (pushGame.state.width > playerCameraWallWidth) {
       camera.followComponent(_player);
     } else {
       camera.followVector2(Vector2(pushGame.state.width * oneBlockSize / 2, pushGame.state.height * oneBlockSize / 2));
