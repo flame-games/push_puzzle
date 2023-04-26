@@ -8,18 +8,50 @@
 flutter run
 ```
 
+## Architecture
+
+For stage data, [lib/utilty/stage_master_data.dart](https://github.com/flame-games/push_puzzle/blob/main/lib/utility/stage_master_data.dart) is referenced, and stages are generated as text data.
+
+```dart
+############
+#     ## p #
+#   o .. o #
+############
+```
+
+The core logic of the game is located under lib/src and is mainly processed here and designed to be executable in CUI.
+
+[lib/src/stage_state.dart](https://github.com/flame-games/push_puzzle/blob/main/lib/src/stage_state.dart) is the main process that manages the stage state, and [lib/src/push_game.dart](https://github.com/flame-games/push_puzzle/blob/main/lib/src/push_game.dart) is designed to encompass it.
+
+Update positions of walls, characters, luggage, etc. as game conditions change.
+
+```dart
+############
+#     ##   #
+#  op .. o #
+############
+```
+
+The other files under the lib are the Flutter and Flame processes for displaying on the screen as GUI.
+
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+As for the content of the game, it is quite simple.
 
-A few resources to get you started if this is your first Flutter project:
+The stage is cleared by moving the character and carrying the luggage to the goal.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Character movement is mainly handled [here](https://github.com/flame-games/player_move).
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+
+### Input Reference
+
+| Joypad | input | Direction |
+| -------------- |:------------:|:------------:|
+| UP     | LogicalKeyboardKey keyW | UP    |
+| Left   | LogicalKeyboardKey keyA | Left  |
+| right  | LogicalKeyboardKey keyD | right |
+| Down   | LogicalKeyboardKey keyS | Down  |
+
 
 ## Contributor
 
