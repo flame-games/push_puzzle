@@ -1,4 +1,4 @@
-import 'package:flame/components.dart';
+import 'package:flame/components.dart' hide Timer;
 import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 import 'package:flutter/cupertino.dart';
@@ -7,11 +7,15 @@ import 'package:flutter/services.dart';
 import 'components/player.dart';
 import 'components/crate.dart';
 
+import 'dart:async';
+
 import 'src/push_game.dart';
 import 'utility/config.dart';
 import 'utility/direction.dart';
 
 class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
+  late Function stateCallbackHandler;
+
   PushGame pushGame = PushGame();
   late Player _player;
   final List<Crate> _crateList = [];
@@ -37,6 +41,8 @@ class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
 
     await draw();
   }
+
+  void setCallback(Function fn) => stateCallbackHandler = fn;
 
   Future<void> draw() async {
     for (var y = 0; y < pushGame.state.splitStageStateList.length; y++) {
@@ -122,7 +128,7 @@ class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
     final isKeyDown = event is RawKeyDownEvent;
     Direction keyDirection = Direction.none;
 
-    if (!isKeyDown || _player.moveCount != 0) {
+    if (!isKeyDown || _player.moveCount != 0 || pushGame.state.isClear) {
       return super.onKeyEvent(event, keysPressed);
     }
 
@@ -134,7 +140,8 @@ class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
         createMove();
       }
       if (pushGame.state.isClear) {
-        drawNextStage();
+        stateCallbackHandler(pushGame.state.isClear);
+        Timer(const Duration(seconds: 3), drawNextStage);
       }
     }
     return super.onKeyEvent(event, keysPressed);
@@ -175,6 +182,7 @@ class MainGame extends FlameGame with KeyboardEvents, HasGameRef {
 
   void drawNextStage() {
     pushGame.nextStage();
+    stateCallbackHandler(pushGame.state.isClear);
     allReset();
     draw();
   }
